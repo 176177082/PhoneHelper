@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">PhoneHelper</string>
+    <string name="buttongetphoneinfo">获取手机信息</string>
+    <string name="phoneinfo_id_text">手机信息</string>
+    <string name="buttonbluetoothconwifi">蓝牙控制wifi</string>
+
+
 </resources>
