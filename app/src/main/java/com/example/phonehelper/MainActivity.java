@@ -8,10 +8,13 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
+import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -27,9 +30,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
@@ -43,8 +48,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_SETTINGS_PERMISSION = 3;
 
     private static final String DEVICE_ADDRESS = "12:34:56:78:90:AB"; // 目标蓝牙设备地址
-    private static final UUID SERVICE_UUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // GATT 服务 UUID
-    private static final UUID CHARACTERISTIC_UUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // GATT 特征值 UUID
+    private static final String TARGET_DEVICE_NAME = "OPPO Enco W31 Lite"; // 目标蓝牙设备名字
+
+
+    private static final UUID GATT_SERVICE_UUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb"); // GATT 服务 UUID
+    private static final UUID GATT_CHARACTERISTIC_UUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb"); // GATT 特征值 UUID
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;
@@ -52,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothGattCharacteristic mCharacteristic;
     private BluetoothGattServer mGattServer;
     private WifiManager mWifiManager;
-//    private TextView mLogView;
+    private TextView mLogView;
 
     private boolean mIsScanning = false;
     private boolean mIsGattConnected = false;
@@ -61,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private Button btnphoneinfo;
     private Button btnbluetoothconwifi;
+    private Button btnbluetoothtest;
+
+    private Button btnwifitest;
+
 
 
     @SuppressLint("MissingPermission")
@@ -68,6 +80,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLogView=(TextView) findViewById(R.id.LogView);
+        mLogView.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        btnbluetoothtest = (Button) findViewById(R.id.buttonbluetoothtest);
+        btnbluetoothtest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                appendLog("btnbluetoothtest,开始");
+            }
+        });
+
+
+        btnwifitest = (Button) findViewById(R.id.buttonwifitest);
+        btnwifitest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                appendLog("btnwifitest,开始");
+            }
+        });
+
 
         btnphoneinfo = (Button) findViewById(R.id.buttongetphoneinfo);
         Intent intent1 = new Intent(this, phoneinfo.class);
@@ -108,22 +141,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // 检查是否拥有位置权限
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_LOCATION_PERMISSION);
-//        }
+
 
         // 检查是否拥有修改系统设置权限（用于打开热点）
         Log.d(TAG, String.valueOf(Build.VERSION.SDK_INT)+String.valueOf(Build.VERSION_CODES.M));
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
-//            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.setData(Settings.System.CONTENT_URI);
-//            startActivityForResult(intent, REQUEST_WRITE_SETTINGS_PERMISSION);
-//        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
             showToast("拥有修改系统设置权限");
         } else {
@@ -142,8 +164,6 @@ public class MainActivity extends AppCompatActivity {
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         // 设置按钮点击事件
-
-
         btnbluetoothconwifi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -172,21 +192,6 @@ public class MainActivity extends AppCompatActivity {
 //        stopGattServer();
     }
 
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // 用户已授权位置权限
-//            } else {
-//                showToast("需要授权位置权限才能使用本应用");
-//                finish();
-//            }
-//        }
-//    }
-
     private void showToast(final String message) {
         mHandler.post(new Runnable() {
             @Override
@@ -195,6 +200,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+//    @SuppressLint("MissingPermission")
+//    private void startScan() {
+//        mBluetoothAdapter.getBluetoothLeScanner().startScan(mScanCallback);
+//                // 开启 GATT 服务
+//        startGattServer();
+//
+//        // 设置扫描标志位
+//        mIsScanning = true;
+//
+
+//    }
+
 
 
 //    private void appendLog(final String message) {
@@ -238,20 +256,11 @@ public class MainActivity extends AppCompatActivity {
 //        mIsScanning = false;
 //    }
 
+//    @SuppressLint("MissingPermission")
 //    private void startGattServer() {
 //        // 开启 GATT 服务
 //        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 //        if (bluetoothManager != null) {
-//            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//                // TODO: Consider calling
-//                //    ActivityCompat#requestPermissions
-//                // here to request the missing permissions, and then overriding
-//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                //                                          int[] grantResults)
-//                // to handle the case where the user grants the permission. See the documentation
-//                // for ActivityCompat#requestPermissions for more details.
-//                return;
-//            }
 //            mGattServer = bluetoothManager.openGattServer(this, mGattServerCallback);
 //            BluetoothGattService service = new BluetoothGattService(GATT_SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
 //            BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(GATT_CHARACTERISTIC_UUID,
@@ -292,19 +301,20 @@ public class MainActivity extends AppCompatActivity {
 //                if (device.getName().equals(TARGET_DEVICE_NAME)) {
 //                    // 找到目标设备，停止扫描并连接到设备
 //                    stopScan();
-//                    connectToDevice(device);
+////                    connectToDevice(device);
 //                }
 //            }
 //        }
-//
+
 //        @Override
 //        public void onScanFailed(int errorCode) {
 //            super.onScanFailed(errorCode);
 //            showToast("扫描失败");
 //        }
 //    };
-
+//
 //    private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
+//        @SuppressLint("MissingPermission")
 //        @Override
 //        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
 //            super.onConnectionStateChange(device, status, newState);
@@ -319,22 +329,21 @@ public class MainActivity extends AppCompatActivity {
 //    };
 //
 //    private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+//        @SuppressLint("MissingPermission")
 //        @Override
 //        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 //            super.onConnectionStateChange(gatt, status, newState);
 //            if (newState == BluetoothProfile.STATE_CONNECTED) {
 //                // 连接成功，发现 GATT 服务
-//                mGatt.discoverServices();
-//                appendLog("
-//                        连接到设备" + gatt.getDevice().getName());
+//                mBluetoothGatt.discoverServices();
+//
 //            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 //                // 断开连接
 //                stopGattServer();
 //                disconnectGatt();
-//                appendLog("已断开与设备 " + gatt.getDevice().getName() + " 的连接");
 //            }
 //        }
-//
+
 //        @Override
 //        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 //            super.onServicesDiscovered(gatt, status);
@@ -359,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            }
 //        }
-//
+
 //        @Override
 //        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
 //            super.onCharacteristicWrite(gatt, characteristic, status);
@@ -369,10 +378,11 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }
 //    };
-//
+
+//    @SuppressLint("MissingPermission")
 //    private void connectToDevice(BluetoothDevice device) {
 //        // 连接到设备
-//        mGatt = device.connectGatt(this, false, mGattCallback);
+//        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
 //    }
 //
 //    private void toggleWifiAp(boolean enabled) {
@@ -416,21 +426,16 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 //
+//    @SuppressLint("MissingPermission")
 //    private void stopScan() {
 //        // 停止扫描蓝牙设备
 //        if (mBluetoothAdapter != null) {
-//            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-//                // TODO: Consider calling
-//                //    ActivityCompat#requestPermissions
-//                // here to request the missing permissions, and then overriding
-//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                //                                          int[] grantResults)
-//                // to handle the case where the user grants the permission. See the documentation
-//                // for ActivityCompat#requestPermissions for more details.
-//                return;
-//            }
-//            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-////            appendLog("已停止扫描蓝牙设备");
+//
+//            mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
+//
+//
+////            mBluetoothLeScanner.stopScan(mScanCallback);
+////            mBluetoothAdapter.stopS(mScanCallback);
 //        }
 //    }
 //
@@ -468,10 +473,10 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
-//    private void appendLog(String message) {
-//        // 添加日志
-//        mLogTextView.append("\n" + message);
-//    }
+    private void appendLog(String message) {
+        // 添加日志
+        mLogView.append("\n" + message);
+    }
 
 
 }

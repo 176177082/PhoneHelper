@@ -3,6 +3,9 @@
     <string name="buttongetphoneinfo">获取手机信息</string>
     <string name="phoneinfo_id_text">手机信息</string>
     <string name="buttonbluetoothconwifi">蓝牙控制wifi</string>
+    <string name="buttonbluetoothtest">蓝牙测试</string>
+    <string name="buttonwifitest">个人wifi测试</string>
+    <string name="LogView">调试信息</string>
 
 
 </resources>
