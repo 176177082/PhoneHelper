@@ -5,7 +5,10 @@
     <string name="buttonbluetoothconwifi">蓝牙控制wifi</string>
     <string name="buttonbluetoothtest">蓝牙测试</string>
     <string name="buttonwifitest">个人wifi测试</string>
+    <string name="buttonwifitest1">个人wifi测试1</string>
+
     <string name="LogView">调试信息</string>
+    <string name="buttongosystemcontrol">控制系统音量</string>
 
 
 </resources>

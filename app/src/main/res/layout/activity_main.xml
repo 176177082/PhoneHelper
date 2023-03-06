@@ -8,6 +8,12 @@
     tools:context=".MainActivity" >
 
     <Button
+        android:id="@+id/buttongosystemcontrol"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/buttongosystemcontrol" />
+
+    <Button
         android:id="@+id/buttongetphoneinfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,6 +30,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/buttonbluetoothtest" />
+
+    <Button
+        android:id="@+id/buttonwifitest1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickbuttonwifitest"
+        android:text="@string/buttonwifitest1" />
 
     <Button
         android:id="@+id/buttonwifitest"
