@@ -37,12 +37,13 @@ public class ControlSystemVoiceActivity extends AppCompatActivity {
         }
 
 
-        // 点击按钮增加音量
+        // 将媒体音量和铃声都调为0
         btnVolume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //对音量值的获取，以及对音量进行调小，可以自行恢复
 
-//                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+//                audioManager.getStreamVolume(AudioManager.STREAM_RING);
 
                 audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, AudioManager.FLAG_SHOW_UI);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, AudioManager.FLAG_SHOW_UI);
