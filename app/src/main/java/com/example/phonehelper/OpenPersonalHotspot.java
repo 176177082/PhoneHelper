@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-//import android.net;
+//import android.net.T;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +29,12 @@ import java.util.concurrent.Executor;
 import android.net.wifi.WifiManager;
 import android.widget.Toast;
 
+//import androidx.core.accessibilityservice.AccessibilityServiceConnection;
+//import android.accessibilityservice.AccessibilityServiceConnection;
+
+
+
+
 
 public class OpenPersonalHotspot extends AppCompatActivity {
 
@@ -37,6 +43,10 @@ public class OpenPersonalHotspot extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_CODE = 123;
 
     private WifiManager.LocalOnlyHotspotReservation mReservation;
+
+
+//    private AccessibilityServiceConnection connection;
+
 
 
 

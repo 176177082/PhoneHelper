@@ -11,6 +11,8 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.phonehelper.controlyy.BaseAccessibilityService;
+
 import java.lang.reflect.Method;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,6 +21,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        BaseAccessibilityService instance = BaseAccessibilityService.getInstance();
+        instance.init(this);
+
+        Button btnYytest = findViewById(R.id.buttonyytest);
+        btnYytest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!instance.checkAccessibilityEnabled(getResources().getString(R.string.access_name))) {
+                    instance.goAccess();
+                }
+            }
+        });
+
 
 
         Button btnVolume = findViewById(R.id.buttongosystemcontrol);

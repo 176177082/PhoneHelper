@@ -9,6 +9,9 @@
 
     <string name="LogView">调试信息</string>
     <string name="buttongosystemcontrol">控制系统音量</string>
+    <string name="buttonyytest">控制yy</string>
+
+    <string name="access_name">测试一下yy自动化</string>
 
 
 </resources>
